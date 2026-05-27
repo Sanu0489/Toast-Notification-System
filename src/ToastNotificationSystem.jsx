@@ -1,50 +1,5 @@
-import { useState, useEffect } from "react";
-
-function Toast({ toast, onClose }) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose(toast.id);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [toast.id, onClose]);
-
-  return (
-    <div
-      style={{
-        position: "relative",
-        padding: "16px 36px 16px 16px",
-        marginBottom: "10px",
-        borderRadius: "8px",
-        color: "white",
-        background:
-          toast.type === "success"
-            ? "green"
-            : toast.type === "error"
-            ? "red"
-            : "blue",
-      }}
-    >
-      <button
-        onClick={() => onClose(toast.id)}
-        style={{
-          position: "absolute",
-          top: "6px",
-          right: "8px",
-          background: "transparent",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          fontSize: "16px",
-        }}
-      >
-        ✕
-      </button>
-
-      <div>{toast.message}</div>
-    </div>
-  );
-}
+import { useState } from "react";
+import { Box, Button, Snackbar, Alert, Stack } from "@mui/material";
 
 export default function ToastNotificationSystem() {
   const [toasts, setToasts] = useState([]);
@@ -60,40 +15,62 @@ export default function ToastNotificationSystem() {
     ]);
   };
 
-  
   const closeToast = (id) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
-  
 
   return (
-    <div>
-      <h2>Toast Notification System</h2>
+    <Box sx={{ p: 3 }}>
+      <Stack direction="row" spacing={2}>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => showToast("success", "Success message!")}
+        >
+          Show Success
+        </Button>
 
-      <button onClick={() => showToast("success", "Success message!")}>
-        Show Success
-      </button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => showToast("error", "Error message!")}
+        >
+          Show Error
+        </Button>
 
-      <button onClick={() => showToast("error", "Error message!")}>
-        Show Error
-      </button>
+        <Button
+          variant="contained"
+          color="info"
+          onClick={() => showToast("info", "Info message!")}
+        >
+          Show Info
+        </Button>
+      </Stack>
 
-      <button onClick={() => showToast("info", "Info message!")}>
-        Show Info
-      </button>
-
-      <div
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          width: "280px",
-        }}
-      >
-        {toasts.map((toast) => (
-          <Toast key={toast.id} toast={toast} onClose={closeToast} />
-        ))}
-      </div>
-    </div>
+      {toasts.map((toast, index) => (
+        <Snackbar
+          key={toast.id}
+          open={true}
+          autoHideDuration={3000}
+          onClose={() => closeToast(toast.id)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          sx={{
+            width: "95%",
+            left: "30px",
+            right: "30px",
+            bottom: `${24 + index * 70}px !important`,
+          }}
+        >
+          <Alert
+            severity={toast.type}
+            variant="filled"
+            onClose={() => closeToast(toast.id)}
+            sx={{ width: "100%" }}
+          >
+            {toast.message}
+          </Alert>
+        </Snackbar>
+      ))}
+    </Box>
   );
 }
